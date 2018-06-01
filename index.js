@@ -13,6 +13,11 @@ server.listen(port, () => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/chat', (req, res) => {
+    res.sendFile( __dirname + "/public/" + "index.html" );
+});
+
+
 io.on('connection', function (socket) {
     let name = `User_${Math.floor(Math.random() * 1001)}`;
     socket.broadcast.emit('USER_CONNECTED', name);

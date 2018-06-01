@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <style>
+        body {
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: whitesmoke;
+        }
+        .chat-area {
+            border-radius: 4px;
+            width: 600px;
+            resize: none;
+            height: 300px;
+        }
+        .inputs {
+            padding-top: 10px;
+            width: 600px
+        }
+        .send-message {
+            width: 19%;
+            border: none;
+            padding: 3px 0;
+            border-radius: 4px;
+            background-color: blueviolet;
+            color: whitesmoke;
+        }
+        .input-message {
+            width: 80%;
+        }
+    </style>
+  </head>
+  <body>
+    <textarea class="chat-area" rows="8" cols="40"></textarea>
+      <div class='inputs'>
+          <input type="text" class="input-message" size="20">
+          <button type="button" class="send-message">Отправить</button>
+      </div>
+      <script>
+            const input = document.querySelector('.input-message');
+            const textarea = document.querySelector('.chat-area');
+            const button =  document.querySelector('.send-message');
+          
+            const socket = io.connect('http://hidden-brook-72094.herokuapp.com/');
+            //var socket = io.connect('http://localhost:3000/');
+            socket.on('USERNAME', userName => {
+                textarea.value += `\nYou\'ve connected to chat. Your username - ${userName}.\n\n`;
+                textarea.scrollTop = textarea.scrollHeight;
+            });
+            socket.on('USER_CONNECTED', userName => {
+                textarea.value += `\n${userName} connected.\n\n` 
+                textarea.scrollTop = textarea.scrollHeight;
+            });
+            socket.on('USER_DISCONNECTED', userName => {
+                textarea.value += `\n${userName} disconnected.\n\n` 
+                textarea.scrollTop = textarea.scrollHeight;
+            });
+            socket.on('HISTORY', history => {
+                history.forEach(item => {
+                   textarea.value += `${item.user}: ${item.message}\n`; 
+                }) ;
+                textarea.scrollTop = textarea.scrollHeight;
+            });
+            socket.on('MESSAGE_TO_CLIENTS', (message, name) => {
+                textarea.value += `${name}: ${message}\n`;
+                textarea.scrollTop = textarea.scrollHeight;
+            });
+          
+            input.addEventListener('keyup', (event) => {
+                if (event.keyCode === 13) {
+                    const message = input.value;
+                    socket.emit('MESSAGE_TO_SERVER', message);
+                    input.value = '';
+                }
+            });
+            button.addEventListener('click', () => {
+                const message = input.value;
+                socket.emit('MESSAGE_TO_SERVER', message);
+                input.value = '';
+            });
+      </script>
+  </body>
+</html>
