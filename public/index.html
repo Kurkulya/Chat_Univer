@@ -45,19 +45,20 @@
             const input = document.querySelector('.input-message');
             const textarea = document.querySelector('.chat-area');
             const button =  document.querySelector('.send-message');
-          
+
+            //const socket = io.connect('http://localhost:3000/');
             const socket = io.connect('http://hidden-brook-72094.herokuapp.com/');
-            //var socket = io.connect('http://localhost:3000/');
-            socket.on('USERNAME', userName => {
-                textarea.value += `\nYou\'ve connected to chat. Your username - ${userName}.\n\n`;
-                textarea.scrollTop = textarea.scrollHeight;
-            });
+
+            let username = prompt("Please enter your name:", "Anonym") || "Anonym";
+
+            socket.emit('SET_USERNAME', username);
+
             socket.on('USER_CONNECTED', userName => {
-                textarea.value += `\n${userName} connected.\n\n` 
+                textarea.value += `\n${userName} connected.\n\n`;
                 textarea.scrollTop = textarea.scrollHeight;
             });
             socket.on('USER_DISCONNECTED', userName => {
-                textarea.value += `\n${userName} disconnected.\n\n` 
+                textarea.value += `\n${userName} disconnected.\n\n`;
                 textarea.scrollTop = textarea.scrollHeight;
             });
             socket.on('HISTORY', history => {

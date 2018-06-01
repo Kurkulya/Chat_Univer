@@ -19,16 +19,18 @@ app.get('/chat', (req, res) => {
 
 
 io.on('connection', function (socket) {
-    let name = `User_${Math.floor(Math.random() * 1001)}`;
-    socket.broadcast.emit('USER_CONNECTED', name);
-    socket.emit('HISTORY', getDayHistory());
-    socket.emit('USERNAME', name);
+    let username;
     socket.on('MESSAGE_TO_SERVER', message => {
-        saveChatHistory(message, name);
-        io.sockets.emit('MESSAGE_TO_CLIENTS', message, name);
+        saveChatHistory(message, username);
+        io.sockets.emit('MESSAGE_TO_CLIENTS', message, username);
+    });
+    socket.on('SET_USERNAME', name => {
+        username = name;
+        socket.emit('HISTORY', getDayHistory());
+        io.sockets.emit('USER_CONNECTED', username);
     });
     socket.on('disconnect', () => {
-        socket.broadcast.emit('USER_DISCONNECTED', name);
+        socket.broadcast.emit('USER_DISCONNECTED', username);
     });
 });
 
